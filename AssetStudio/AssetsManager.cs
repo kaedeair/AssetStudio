@@ -50,7 +50,7 @@ namespace AssetStudio
             }
         }
 
-        public void LoadFolder(string path)
+        public void LoadFolders(string[] path)
         {
             if (Silent)
             {
@@ -58,11 +58,13 @@ namespace AssetStudio
                 Progress.Silent = true;
             }
 
-            MergeSplitAssets(path, true);
-            var files = Directory.GetFiles(path, "*.*", SearchOption.AllDirectories).ToList();
-            var toReadFile = ProcessingSplitFiles(files);
-            Load(toReadFile);
-
+            MergeSplitAssets(path[0], true);
+            List<string> toReadFile = [];
+            foreach (string file in path)
+            {
+                toReadFile.AddRange(ImportHelper.ProcessingSplitFiles([.. Directory.GetFiles(file, "*.*", SearchOption.AllDirectories)]));
+            }
+            Load([.. toReadFile]);
             if (Silent)
             {
                 Logger.Silent = false;

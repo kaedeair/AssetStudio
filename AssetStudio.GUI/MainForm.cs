@@ -203,13 +203,27 @@ namespace AssetStudio.GUI
             ResetForm();
             assetsManager.SpecifyUnityVersion = specifyUnityVersion.Text;
             assetsManager.Game = Studio.Game;
-            if (paths.Length == 1 && Directory.Exists(paths[0]))
+            List<string> folders = [];
+            List<string> files = [];
+            foreach (string path in paths)
             {
-                await Task.Run(() => assetsManager.LoadFolder(paths[0]));
+                if (Directory.Exists(path))
+                {
+                    folders.Add(path);
+                    continue;
+                }
+                if (File.Exists(path))
+                {
+                    files.Add(path);
+                }
             }
-            else
+            if (folders.Count > 0)
             {
-                await Task.Run(() => assetsManager.LoadFiles(paths));
+                await Task.Run(() => assetsManager.LoadFolders([.. folders]));
+            }
+            if (files.Count > 0)
+            {
+                await Task.Run(() => assetsManager.LoadFiles([.. files]));
             }
             BuildAssetStructures();
         }
@@ -243,7 +257,7 @@ namespace AssetStudio.GUI
                 openDirectoryBackup = openFolderDialog.Folder;
                 assetsManager.SpecifyUnityVersion = specifyUnityVersion.Text;
                 assetsManager.Game = Studio.Game;
-                await Task.Run(() => assetsManager.LoadFolder(openFolderDialog.Folder));
+                await Task.Run(() => assetsManager.LoadFolders([openFolderDialog.Folder]));
                 BuildAssetStructures();
             }
         }
